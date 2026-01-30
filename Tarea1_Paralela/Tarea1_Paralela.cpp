@@ -8,15 +8,9 @@ using namespace std;
 int main() {
     double start = omp_get_wtime();
 
-    cout << "Estableciendo la configuracion OpenMP con 16 Hilos\n\n";
-    int hilos = 16;
-
-#ifdef _OPENMP
-    omp_set_num_threads(hilos);
-#endif
-
     const int N = 1000;
     int arreglo1[N], arreglo2[N], arreglo3[N];
+    int chunk = 100;
     srand(_time32(nullptr));
 
     // Inicializamos los arreglos
@@ -26,7 +20,9 @@ int main() {
     }
 
     // Computamos la suma de cada celda de manera paralela con #pragma
-#pragma omp parallel for num_threads(hilos)
+#pragma omp parallel for \
+    shared(arreglo1, arreglo2, arreglo3, chunk) \
+    schedule(static, chunk)
     for (int i = 0; i < N; i++) {
         arreglo3[i] = arreglo1[i] + arreglo2[i];
     }
