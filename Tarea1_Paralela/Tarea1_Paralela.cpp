@@ -2,19 +2,59 @@
 //
 
 #include <iostream>
+#include <omp.h>
+using namespace std;
 
-int main()
-{
-    std::cout << "Hello World!\n";
+int main() {
+    double start = omp_get_wtime();
+
+    cout << "Estableciendo la configuracion OpenMP con 16 Hilos\n\n";
+    int hilos = 16;
+
+#ifdef _OPENMP
+    omp_set_num_threads(hilos);
+#endif
+
+    const int N = 1000;
+    int arreglo1[N], arreglo2[N], arreglo3[N];
+    srand(_time32(nullptr));
+
+    // Inicializamos los arreglos
+    for (int i = 0; i < N; i++) {
+        arreglo1[i] = rand() % 100;
+        arreglo2[i] = rand() % 100;
+    }
+
+    // Computamos la suma de cada celda de manera paralela con #pragma
+#pragma omp parallel for num_threads(hilos)
+    for (int i = 0; i < N; i++) {
+        arreglo3[i] = arreglo1[i] + arreglo2[i];
+    }
+
+    cout << "Arreglo 1 - [0 - 9][990 - 1000]:\n";
+    for (int i = 0; i < 10; i++)
+        cout << arreglo1[i] << " | ";
+
+    for (int i = 990; i < 1000; i++)
+        cout << arreglo1[i] << " | ";
+    cout << "\n\n";
+
+    cout << "Arreglo 2 - [0 - 9][990 - 1000]:\n";
+    for (int i = 0; i < 10; i++)
+        cout << arreglo2[i] << " | ";
+    for (int i = 990; i < 1000; i++)
+        cout << arreglo2[i] << " | ";
+    cout << "\n\n";
+
+    cout << "[Resultado] Arreglo 3 - [0 - 9][990 - 1000]:\n";
+    for (int i = 0; i < 10; i++)
+        cout << arreglo3[i] << " | ";
+
+    for (int i = 990; i < 1000; i++)
+        cout << arreglo3[i] << " | ";
+    cout << "\n";
+
+    double end = omp_get_wtime();
+    cout << "Tiempo transcurrido: " << end - start << endl;
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
